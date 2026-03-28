@@ -1,0 +1,88 @@
+CREATE DATABASE student_budget;
+USE student_budget;
+
+CREATE TABLE Users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Categories (
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE Budgets (
+    budget_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    month INT NOT NULL CHECK (month BETWEEN 1 AND 12),
+    year INT NOT NULL,
+    total_budget DECIMAL(10,2) NOT NULL CHECK (total_budget > 0),
+
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+        ON DELETE CASCADE,
+
+    UNIQUE(user_id, month, year)
+);
+
+CREATE TABLE Expenses (
+    expense_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    category_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL CHECK (amount > 0),
+    expense_date DATE NOT NULL,
+    notes VARCHAR(255),
+
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (category_id) REFERENCES Categories(category_id)
+);
+
+CREATE TABLE Income (
+    income_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL CHECK (amount > 0),
+    source VARCHAR(100),
+    income_date DATE NOT NULL,
+
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE Category_Budget (
+    cb_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    category_id INT NOT NULL,
+    month INT NOT NULL,
+    year INT NOT NULL,
+    limit_amount DECIMAL(10,2) NOT NULL CHECK (limit_amount > 0),
+
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (category_id) REFERENCES Categories(category_id),
+
+    UNIQUE(user_id, category_id, month, year)
+);
+
+CREATE TABLE Alerts (
+    alert_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    message VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE Expense_Audit (
+    audit_id INT PRIMARY KEY AUTO_INCREMENT,
+    expense_id INT,
+    action_type VARCHAR(20),
+    action_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+SHOW TABLES;
