@@ -13,7 +13,8 @@ import { formatDistanceToNow } from 'date-fns';
 export default function ExpensesPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const { expenses, deleteExpense } = useExpenses();
+  const { user } = useAuth();
+  const [expenses, setExpenses] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   useEffect(() => {
@@ -26,6 +27,23 @@ export default function ExpensesPage() {
     return null;
   }
 
+  useEffect(() => {
+    if(!user?.id) return;
+    fetchExpenses();
+  }, [user]);
+
+  const fetchExpenses = async () => {
+    const res = await fetch("/api/expenses");
+    const data = await res.json();
+
+    if(data.sucess) {
+      const userExpenses = data.data.filter(
+        (e: any) => e.user_id === Number(user?.id)
+      );
+      setExpenses(userExpenses);
+    }
+  }
+
   const categories = Array.from(new Set(expenses.map(e => e.category)));
   const filteredExpenses = selectedCategory === 'All' 
     ? expenses 
@@ -33,8 +51,14 @@ export default function ExpensesPage() {
 
   const totalAmount = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
 
-  const handleDelete = (id: string) => {
-    deleteExpense(id);
+  const handleDelete = async (id: number) => {
+    await fetch("/api/expenses", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ expense_id: id }),
+    });
+
+    fetchExpenses();
   };
 
   return (
@@ -98,18 +122,18 @@ export default function ExpensesPage() {
               <div className="space-y-2">
                 {filteredExpenses.map(expense => (
                   <div
-                    key={expense.id}
+                    key={expense.expense_id}
                     className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors group"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
                         <div>
-                          <p className="font-medium">{expense.title}</p>
+                          <p className="font-medium">{expense.notes || "Expense"}</p>
                           <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
                             <span className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium">
                               {expense.category}
                             </span>
-                            <span>{formatDistanceToNow(new Date(expense.date), { addSuffix: true })}</span>
+                            <span>{formatDistanceToNow(new Date(expense.expense_date), { addSuffix: true })}</span>
                             {expense.description && (
                               <>
                                 <span>•</span>
@@ -121,11 +145,11 @@ export default function ExpensesPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <p className="text-lg font-bold text-foreground">${expense.amount.toFixed(2)}</p>
+                      <p className="text-lg font-bold text-foreground">₹{Number(expense.amount).toFixed(2)}</p>
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => handleDelete(expense.id)}
+                        onClick={() => handleDelete(expense.expense_id)}
                         className="text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <Trash2 className="w-4 h-4" />

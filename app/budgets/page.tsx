@@ -3,7 +3,6 @@
 import { useAuth } from '@/app/context/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useExpenses } from '@/app/context/expenses';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, TrendingUp, Target } from 'lucide-react';
@@ -12,7 +11,8 @@ import { toast } from 'sonner';
 export default function BudgetsPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const { budgets, updateBudget } = useExpenses();
+  const { user } = useAuth();
+  const [budgets, setBudgets] = useState<any[]>([]);
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [editAmount, setEditAmount] = useState('');
 
@@ -26,25 +26,63 @@ export default function BudgetsPage() {
     return null;
   }
 
+  useEffect(() => {
+    if (!user?.id) return;
+    fetchBudgets();
+  }, [user]);
+
+  const fetchBudgets = async () => {
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+
+    const res = await fetch(
+      `/api/budget?user_id=${user?.id}&month=${currentMonth}&year=${currentYear}`
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      setBudgets([
+        {
+          category: "Overall",
+          limit: data.data?.total_budget || 0,
+          spent: data.data?.spent || 0,
+        },
+      ]);
+    }
+  };
+
   const handleEditClick = (category: string, limit: number) => {
     setEditingCategory(category);
     setEditAmount(limit.toString());
   };
 
-  const handleSave = (category: string, currentBudget: typeof budgets[0]) => {
+  const handleSave = async (category: string) => {
     const newLimit = parseFloat(editAmount);
+
     if (isNaN(newLimit) || newLimit <= 0) {
       toast.error('Please enter a valid amount');
       return;
     }
 
-    updateBudget(category, {
-      ...currentBudget,
-      limit: newLimit,
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+
+    await fetch("/api/budget", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: Number(user?.id),
+        month: currentMonth,
+        year: currentYear,
+        total_budget: newLimit,
+      }),
     });
 
+    toast.success("Budget updated!");
     setEditingCategory(null);
-    toast.success('Budget updated!');
+
+    fetchBudgets();
   };
 
   const handleCancel = () => {
@@ -124,7 +162,7 @@ export default function BudgetsPage() {
                           </div>
                           <Button
                             size="sm"
-                            onClick={() => handleSave(budget.category, budget)}
+                            onClick={() => handleSave(budget.category)}
                             className="bg-primary text-primary-foreground"
                           >
                             Save

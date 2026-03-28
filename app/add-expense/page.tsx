@@ -3,7 +3,6 @@
 import { useAuth } from '@/app/context/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useExpenses } from '@/app/context/expenses';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -26,15 +25,14 @@ const CATEGORIES = [
 export default function AddExpensePage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const { addExpense } = useExpenses();
-
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
+  const { user } = useAuth();
+ 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login');
@@ -45,7 +43,24 @@ export default function AddExpensePage() {
     return null;
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const getCategoryId = (category: string) => {
+    const map: Record<string, number> = {
+    'Food & Dining': 1,
+    'Education': 2,
+    'Transportation': 3,
+    'Entertainment': 4,
+    'Utilities': 5,
+    'Shopping': 6,
+    'Health & Fitness': 7,
+    'Books & Media': 8,
+    'Subscriptions': 9,
+    'Other': 10,
+    };
+
+    return map[category] || 1;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!title || !amount || !category) {
@@ -60,18 +75,32 @@ export default function AddExpensePage() {
     }
 
     setIsLoading(true);
+    
     try {
-      addExpense({
-        title,
-        amount: amountNum,
-        category,
-        date: new Date(date),
-        description,
+      const res = await fetch("/api/expenses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: Number(user?.id),
+          category_id: getCategoryId(category), // see below
+          amount: amountNum,
+          expense_date: date,
+          notes: description || title,
+        }),
       });
-      toast.success('Expense added successfully!');
-      router.push('/expenses');
+
+      const data = await res.json(); 
+      if (data.success) { 
+        toast.success("Expense added successfully!"); 
+        router.push("/expenses"); 
+      } else { 
+        toast.error(data.error || "Failed to add expense"); 
+      }
+
     } catch (error) {
-      toast.error('Failed to add expense');
+      toast.error("Failed to add expense");
     } finally {
       setIsLoading(false);
     }
