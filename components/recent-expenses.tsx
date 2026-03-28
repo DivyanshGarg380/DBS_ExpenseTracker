@@ -1,22 +1,38 @@
 'use client';
 
-import { useExpenses } from '@/app/context/expenses';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, Edit2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 
-export function RecentExpenses() {
-  const { expenses, deleteExpense } = useExpenses();
+export function RecentExpenses({ userId }: { userId: number }) {
+  const [expenses, setExpenses] = useState<any[]>([]);
 
-  const recentExpenses = useMemo(() => {
-    return expenses.slice(0, 5);
-  }, [expenses]);
+  useEffect(() => {
+    if (!userId) return;
+    fetchExpenses();
+  }, [userId]);
 
-  const handleDelete = (id: string) => {
-    deleteExpense(id);
+  const fetchExpenses = async () => {
+    const res = await fetch("/api/expenses");
+    const data = await res.json();
+
+    if (data.success) {
+      const filtered = data.data.filter((e: any) => e.user_id === userId);
+      setExpenses(filtered.slice(0, 5));
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    await fetch("/api/expenses", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ expense_id: id }),
+    });
+
+    fetchExpenses();
   };
 
   return (
@@ -30,40 +46,48 @@ export function RecentExpenses() {
         </Link>
       </div>
 
-      {recentExpenses.length > 0 ? (
+      {expenses.length > 0 ? (
         <div className="space-y-3">
-          {recentExpenses.map(expense => (
+          {expenses.map((expense: any) => (
             <div
-              key={expense.id}
+              key={expense.expense_id}
               className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors"
             >
               <div className="flex-1">
-                <p className="font-medium">{expense.title}</p>
+                <p className="font-medium">{expense.notes || "Expense"}</p>
+
                 <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
                   <span>{expense.category}</span>
                   <span>•</span>
-                  <span>{formatDistanceToNow(new Date(expense.date), { addSuffix: true })}</span>
+                  <span>
+                    {formatDistanceToNow(new Date(expense.expense_date), { addSuffix: true })}
+                  </span>
                 </div>
               </div>
+
               <div className="flex items-center gap-3">
-                <p className="font-semibold text-lg">${expense.amount.toFixed(2)}</p>
-                <div className="flex gap-1">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDelete(expense.id)}
-                    className="text-destructive hover:bg-destructive/10"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+                <p className="font-semibold text-lg">
+                  ₹{Number(expense.amount).toFixed(2)}
+                </p>
+
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleDelete(expense.expense_id)}
+                  className="text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           ))}
         </div>
       ) : (
         <div className="text-center py-8 text-muted-foreground">
-          No expenses yet. <Link href="/add-expense" className="text-primary font-medium">Add one now</Link>
+          No expenses yet.{" "}
+          <Link href="/add-expense" className="text-primary font-medium">
+            Add one now
+          </Link>
         </div>
       )}
     </Card>

@@ -8,7 +8,7 @@ import { CategoryBreakdown } from '@/components/category-breakdown';
 import { RecentExpenses } from '@/components/recent-expenses';
 
 export default function DashboardPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -35,15 +35,15 @@ export default function DashboardPage() {
       <div className="flex-1 overflow-auto">
         <div className="px-8 py-6 space-y-6">
           {/* Overview Cards */}
-          <DashboardOverview />
+          <DashboardOverview userId={Number(user?.id)} />
 
           {/* Charts and Recent */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-              <CategoryBreakdown />
+              <CategoryBreakdown userId={Number(user?.id)} />
             </div>
             <div>
-              <RecentExpenses />
+              <RecentExpenses userId={Number(user?.id)} />
             </div>
           </div>
         </div>

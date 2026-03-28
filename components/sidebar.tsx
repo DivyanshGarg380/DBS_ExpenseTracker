@@ -6,10 +6,12 @@ import { LogOut, BarChart3, PlusCircle, ListTodo, PieChart, Settings } from 'luc
 import { useAuth } from '@/app/context/auth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 export function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const router = useRouter();
 
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -22,7 +24,7 @@ export function Sidebar() {
 
   const handleLogout = () => {
     logout();
-    window.location.href = '/';
+    router.push('/');
   };
 
   return (
@@ -34,10 +36,12 @@ export function Sidebar() {
       </div>
 
       {/* User Info */}
-      <div className="p-6 border-b border-sidebar-border">
-        <p className="text-sm font-semibold text-sidebar-foreground">{user?.name}</p>
-        <p className="text-xs text-sidebar-foreground/60">{user?.email}</p>
-      </div>
+      {user && (
+        <>
+          <p className="text-sm font-semibold text-sidebar-foreground">{user.name}</p>
+          <p className="text-xs text-sidebar-foreground/60">{user.email}</p>
+        </>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-6 space-y-2">

@@ -6,6 +6,7 @@ export async function GET() {
     const [rows] = await db.query<any>(`
       SELECT 
         e.expense_id,
+        e.user_id,
         e.amount,
         e.expense_date,
         e.notes,

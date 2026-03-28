@@ -25,7 +25,6 @@ export default function SettingsPage() {
   }
 
   const handleLogout = () => {
-    setIsLoading(true);
     logout();
     toast.success('Logged out successfully');
     router.push('/');
@@ -59,7 +58,7 @@ export default function SettingsPage() {
                 <label className="block text-sm font-medium text-muted-foreground mb-2">Full Name</label>
                 <div className="flex items-center gap-3 p-3 bg-secondary/30 rounded-lg">
                   <User className="w-5 h-5 text-muted-foreground" />
-                  <span className="font-medium">{user?.name}</span>
+                  <span className="font-medium">{user?.name || 'User'}</span>
                 </div>
               </div>
 
@@ -67,7 +66,7 @@ export default function SettingsPage() {
                 <label className="block text-sm font-medium text-muted-foreground mb-2">Email Address</label>
                 <div className="flex items-center gap-3 p-3 bg-secondary/30 rounded-lg">
                   <Mail className="w-5 h-5 text-muted-foreground" />
-                  <span className="font-medium">{user?.email}</span>
+                  <span className="font-medium">{user?.email || 'No email'}</span>
                 </div>
               </div>
             </div>
