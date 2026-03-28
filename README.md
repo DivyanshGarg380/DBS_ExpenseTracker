@@ -58,7 +58,7 @@ All data operations are handled through API endpoints, ensuring separation of co
 ### Tables
 
 1. Users
-   Stores user information such as name, email, and password.
+   Stores user information such as name, email and password.
 
 2. Categories
    Stores predefined expense categories.
