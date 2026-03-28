@@ -3,7 +3,6 @@
 import { useAuth } from '@/app/context/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useExpenses } from '@/app/context/expenses';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { PlusCircle, Trash2, Filter } from 'lucide-react';
@@ -11,9 +10,8 @@ import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function ExpensesPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const router = useRouter();
-  const { user } = useAuth();
   const [expenses, setExpenses] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
@@ -36,7 +34,7 @@ export default function ExpensesPage() {
     const res = await fetch("/api/expenses");
     const data = await res.json();
 
-    if(data.sucess) {
+    if(data.success) {
       const userExpenses = data.data.filter(
         (e: any) => e.user_id === Number(user?.id)
       );
