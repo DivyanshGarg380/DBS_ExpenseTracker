@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from "sonner";
 
 interface User {
@@ -8,10 +8,10 @@ interface User {
   name: string;
   email: string;
 }
-
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -20,7 +20,19 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    setLoading(false);
+  }, []);
 
   const login = async (email: string, password: string) => {
     const res = await fetch("/api/auth", {
@@ -32,11 +44,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const data = await res.json();
 
     if (data.success) {
-      setUser({
+      const userData = {
         id: data.user.user_id.toString(),
         name: data.user.name,
         email: data.user.email,
-      });
+      };
+
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
     } else {
       toast.error("Server Error while logging in!");
     }
@@ -52,11 +67,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const data = await res.json();
 
     if (data.success) {
-      setUser({
+      const userData = {
         id: data.user.user_id.toString(),
         name: data.user.name,
         email: data.user.email,
-      });
+      };
+
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
     } else {
       toast.error("Server Error while signing up!");
     }
@@ -64,10 +82,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, loading, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

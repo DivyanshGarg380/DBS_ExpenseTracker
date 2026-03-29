@@ -20,31 +20,36 @@ export function DashboardOverview({ userId }: { userId: number }) {
   }, [userId]);
 
   const fetchData = async () => {
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
+    try {
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
 
-    const budgetRes = await fetch(
-      `/api/budget?user_id=${userId}&month=${currentMonth}&year=${currentYear}`
-    );
-    const budgetData = await budgetRes.json();
+      const budgetRes = await fetch(
+        `/api/budget?user_id=${userId}&month=${currentMonth}&year=${currentYear}`
+      );
+      const budgetData = await budgetRes.json();
 
-    const totalBudget = budgetData.data?.total_budget || 0;
-    const totalSpent = budgetData.data?.spent || 0;
+      const totalBudget = Number(budgetData?.data?.total_budget) || 0;
+      const totalSpent = Number(budgetData?.data?.spent) || 0;
 
-    const budgetRemaining = totalBudget - totalSpent;
-    const percentSpent =
-      totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
+      const budgetRemaining = totalBudget - totalSpent;
+      const percentSpent =
+        totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 
-    const alertRes = await fetch(`/api/alerts?user_id=${userId}`);
-    const alertData = await alertRes.json();
+      const alertRes = await fetch(`/api/alerts?user_id=${userId}`);
+      const alertData = await alertRes.json();
 
-    setStats({
-      totalSpent,
-      budgetRemaining,
-      percentSpent: Math.round(percentSpent),
-      totalBudget,
-      overBudgetCount: alertData.data.length,
-    });
+      setStats({
+        totalSpent,
+        budgetRemaining,
+        percentSpent: Math.round(percentSpent),
+        totalBudget,
+        overBudgetCount: alertData?.data?.length || 0,
+      });
+
+    } catch (err) {
+      console.error("Dashboard error:", err);
+    }
   };
 
   return (

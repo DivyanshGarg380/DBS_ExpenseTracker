@@ -19,9 +19,11 @@ export function RecentExpenses({ userId }: { userId: number }) {
     const res = await fetch("/api/expenses");
     const data = await res.json();
 
-    if (data.success) {
+    if (data.success && Array.isArray(data.data)) {
       const filtered = data.data.filter((e: any) => e.user_id === userId);
       setExpenses(filtered.slice(0, 5));
+    } else {
+      setExpenses([]);
     }
   };
 
@@ -60,14 +62,18 @@ export function RecentExpenses({ userId }: { userId: number }) {
                   <span>{expense.category}</span>
                   <span>•</span>
                   <span>
-                    {formatDistanceToNow(new Date(expense.expense_date), { addSuffix: true })}
+                    {expense.expense_date ? (
+                      formatDistanceToNow(new Date(expense.expense_date), { addSuffix: true })
+                    ) : (
+                      "Unknown date"
+                    )}
                   </span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
                 <p className="font-semibold text-lg">
-                  ₹{Number(expense.amount).toFixed(2)}
+                  ₹{Number(expense.amount || 0).toFixed(2)}
                 </p>
 
                 <Button

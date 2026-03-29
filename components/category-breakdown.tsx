@@ -15,16 +15,22 @@ export function CategoryBreakdown({ userId }: { userId: number }) {
   }, [userId]);
 
   const fetchData = async () => {
-    const res = await fetch(`/api/analytics?user_id=${userId}`);
-    const result = await res.json();
+    try {
+      const res = await fetch(`/api/analytics?user_id=${userId}`);
+      const result = await res.json();
 
-    if (result.success) {
-      const formatted = result.categoryData.map((item: any) => ({
-        name: item.category,
-        value: Number(item.total),
-      }));
-
-      setData(formatted);
+      if (result.success && Array.isArray(result.categoryData)) {
+        const formatted = result.categoryData.map((item: any) => ({
+          name: item.category,
+          value: Number(item.total) || 0,
+        }));
+        setData(formatted);
+      } else {
+        setData([]);
+      }
+    } catch (err) {
+      console.error("Category breakdown error:", err);
+      setData([]);
     }
   };
 
@@ -49,7 +55,7 @@ export function CategoryBreakdown({ userId }: { userId: number }) {
               ))}
             </Pie>
 
-            <Tooltip formatter={(value) => `₹${value}`} />
+            <Tooltip formatter={(value) => `₹${Number(value)}`} />
             <Legend />
           </PieChart>
         </ResponsiveContainer>

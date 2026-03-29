@@ -8,18 +8,18 @@ import { CategoryBreakdown } from '@/components/category-breakdown';
 import { RecentExpenses } from '@/components/recent-expenses';
 
 export default function DashboardPage() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
   const router = useRouter();
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
+  }, [loading, isAuthenticated, router]);
 
   return (
     <div className="flex-1 flex flex-col">
@@ -35,7 +35,7 @@ export default function DashboardPage() {
       <div className="flex-1 overflow-auto">
         <div className="px-8 py-6 space-y-6">
           {/* Overview Cards */}
-          <DashboardOverview userId={Number(user?.id)} />
+          <DashboardOverview userId={Number(user!.id)} />
 
           {/* Charts and Recent */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

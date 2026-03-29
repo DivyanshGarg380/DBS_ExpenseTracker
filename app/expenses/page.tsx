@@ -47,7 +47,10 @@ export default function ExpensesPage() {
     ? expenses 
     : expenses.filter(e => e.category === selectedCategory);
 
-  const totalAmount = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalAmount = filteredExpenses.reduce(
+    (sum, e) => sum + Number(e.amount),
+    0
+  );
 
   const handleDelete = async (id: number) => {
     await fetch("/api/expenses", {
