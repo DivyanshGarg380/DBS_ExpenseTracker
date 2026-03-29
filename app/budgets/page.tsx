@@ -45,8 +45,8 @@ export default function BudgetsPage() {
       setBudgets([
         {
           category: "Overall",
-          limit: data.data?.total_budget || 0,
-          spent: data.data?.spent || 0,
+          spent: Number(data.data?.spent) || 0,
+          limit: Number(data.data?.total_budget) || 0,
         },
       ]);
     }
