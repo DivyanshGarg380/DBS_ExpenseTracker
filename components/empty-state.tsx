@@ -21,14 +21,18 @@ export function EmptyState({
   actionHref,
 }: EmptyStateProps) {
   return (
-    <Card className="p-12">
+    <Card className="p-12 bg-zinc-900 border-zinc-800">
       <div className="flex flex-col items-center justify-center text-center">
-        <div className="mb-4 text-muted-foreground">{icon}</div>
-        <h3 className="text-lg font-semibold mb-2">{title}</h3>
-        <p className="text-muted-foreground mb-6 max-w-xs">{description}</p>
+        <div className="mb-4 w-14 h-14 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-500">
+          {icon}
+        </div>
+        <h3 className="text-base font-semibold text-white mb-1">{title}</h3>
+        <p className="text-sm text-zinc-500 mb-6 max-w-xs leading-relaxed">{description}</p>
         {actionLabel && actionHref && (
           <Link href={actionHref}>
-            <Button className="bg-primary text-primary-foreground">{actionLabel}</Button>
+            <Button className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-sm">
+              {actionLabel}
+            </Button>
           </Link>
         )}
       </div>
