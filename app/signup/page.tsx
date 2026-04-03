@@ -56,73 +56,86 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-background">
-      <div className="w-full max-w-md">
-        <div className="bg-card rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-center mb-2">BudgetTrack</h1>
-          <p className="text-center text-muted-foreground mb-8">Create your account</p>
+    <div className="min-h-screen flex items-center justify-center bg-zinc-950 px-4">
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Subtle background glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(52,211,153,0.08),transparent)] pointer-events-none" />
+
+      <div className="w-full max-w-md relative">
+
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-white tracking-tight">
+            Budget<span className="text-emerald-400">Track</span>
+          </h1>
+          <p className="text-zinc-500 text-sm mt-2">Create your account</p>
+        </div>
+
+        {/* Card */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8">
+
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium mb-2">Full Name</label>
+              <label className="block text-sm font-medium text-zinc-300 mb-1.5">Full Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Alex Student"
-                className="w-full px-4 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-colors text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
+              <label className="block text-sm font-medium text-zinc-300 mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@example.com"
-                className="w-full px-4 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-colors text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Password</label>
+              <label className="block text-sm font-medium text-zinc-300 mb-1.5">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-colors text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Confirm Password</label>
+              <label className="block text-sm font-medium text-zinc-300 mb-1.5">Confirm Password</label>
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-colors text-sm"
               />
             </div>
 
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary text-primary-foreground"
+              className="w-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold py-2.5 rounded-lg transition-colors mt-1"
             >
-              {isLoading ? 'Creating account...' : 'Sign up'}
+              {isLoading ? 'Creating account...' : 'Create account'}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm">
-            <span className="text-muted-foreground">Already have an account? </span>
-            <Link href="/login" className="text-primary font-medium hover:underline">
+            <span className="text-zinc-500">Already have an account? </span>
+            <Link href="/login" className="text-emerald-400 font-medium hover:text-emerald-300 transition-colors">
               Sign in
             </Link>
           </div>
         </div>
+
       </div>
     </div>
   );

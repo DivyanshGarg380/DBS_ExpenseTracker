@@ -28,21 +28,21 @@ export async function GET(req: Request) {
     const month = searchParams.get("month");
     const year = searchParams.get("year");
 
-    const [rows] = await db.query<any>(
-      `
+    const [rows] = await db.query<any>(`
       SELECT 
         b.total_budget,
-        IFNULL(SUM(e.amount), 0) AS spent
+        IFNULL(SUM(e.amount), 0) AS spent,
+        (b.total_budget - IFNULL(SUM(e.amount), 0)) AS remaining
       FROM Budgets b
       LEFT JOIN Expenses e 
         ON b.user_id = e.user_id 
-        AND MONTH(e.expense_date) = ?
-        AND YEAR(e.expense_date) = ?
-      WHERE b.user_id = ?
-      GROUP BY b.total_budget
-      `,
-      [month, year, user_id]
-    );
+        AND MONTH(e.expense_date) = b.month
+        AND YEAR(e.expense_date) = b.year
+      WHERE b.user_id = ? 
+        AND b.month = ? 
+        AND b.year = ?
+      GROUP BY b.user_id, b.month, b.year, b.total_budget
+    `, [user_id, month, year]);
 
     return NextResponse.json({ success: true, data: rows[0] });
   } catch (error: any) {
