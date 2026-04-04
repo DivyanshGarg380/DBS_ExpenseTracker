@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       error: error.message,
     });
   }
-}
+};
 
 
 export async function PUT(req: Request) {
@@ -67,4 +67,4 @@ export async function PUT(req: Request) {
       error: error.message,
     });
   }
-}
+};
