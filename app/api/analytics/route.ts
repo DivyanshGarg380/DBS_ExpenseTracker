@@ -11,8 +11,8 @@ export async function GET(req: Request) {
       SELECT 
         c.name AS category,
         SUM(e.amount) AS total
-      FROM Expenses e
-      JOIN Categories c ON e.category_id = c.category_id
+      FROM expenses e
+      JOIN categories c ON e.category_id = c.category_id
       WHERE e.user_id = ?
       GROUP BY c.name
       `,
@@ -25,7 +25,7 @@ export async function GET(req: Request) {
         MONTH(expense_date) AS month,
         YEAR(expense_date) AS year,
         SUM(amount) AS total
-      FROM Expenses
+      FROM expenses
       WHERE user_id = ?
       GROUP BY year, month
       ORDER BY year, month

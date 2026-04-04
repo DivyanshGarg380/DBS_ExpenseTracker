@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const { user_id, month, year, total_budget } = await req.json();
 
     await db.query(
-      `INSERT INTO Budgets (user_id, month, year, total_budget)
+      `INSERT INTO budgets (user_id, month, year, total_budget)
        VALUES (?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE total_budget = ?`,
       [user_id, month, year, total_budget, total_budget]
@@ -33,8 +33,8 @@ export async function GET(req: Request) {
         b.total_budget,
         IFNULL(SUM(e.amount), 0) AS spent,
         (b.total_budget - IFNULL(SUM(e.amount), 0)) AS remaining
-      FROM Budgets b
-      LEFT JOIN Expenses e 
+      FROM budgets b
+      LEFT JOIN expenses e 
         ON b.user_id = e.user_id 
         AND MONTH(e.expense_date) = b.month
         AND YEAR(e.expense_date) = b.year

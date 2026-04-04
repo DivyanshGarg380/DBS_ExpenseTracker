@@ -12,9 +12,9 @@ export async function GET() {
         e.notes,
         c.name AS category,
         u.name AS user
-      FROM Expenses e
-      JOIN Categories c ON e.category_id = c.category_id
-      JOIN Users u ON e.user_id = u.user_id
+      FROM expenses e
+      JOIN categories c ON e.category_id = c.category_id
+      JOIN users u ON e.user_id = u.user_id
       ORDER BY e.expense_date DESC
     `);
 
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     }
 
     await db.query(
-      `INSERT INTO Expenses (user_id, category_id, amount, expense_date, notes)
+      `INSERT INTO expenses (user_id, category_id, amount, expense_date, notes)
        VALUES (?, ?, ?, ?, ?)`,
       [user_id, category_id, amount, expense_date, notes || null]
     );
@@ -71,7 +71,7 @@ export async function DELETE(req: Request) {
     }
 
     await db.query(
-      "DELETE FROM Expenses WHERE expense_id = ?",
+      "DELETE FROM expenses WHERE expense_id = ?",
       [expense_id]
     );
 
@@ -102,7 +102,7 @@ export async function PUT(req: Request) {
     }
 
     await db.query(
-      `UPDATE Expenses
+      `UPDATE expenses
        SET amount = ?, category_id = ?, expense_date = ?, notes = ?
        WHERE expense_id = ?`,
       [amount, category_id, expense_date, notes, expense_id]

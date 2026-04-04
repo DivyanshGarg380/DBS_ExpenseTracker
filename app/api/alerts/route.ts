@@ -7,7 +7,7 @@ export async function GET(req: Request) {
     const user_id = searchParams.get("user_id");
 
     const [rows] = await db.query<any>(
-      `SELECT * FROM Alerts WHERE user_id = ? ORDER BY created_at DESC`,
+      `SELECT * FROM alerts WHERE user_id = ? ORDER BY created_at DESC`,
       [user_id]
     );
 
