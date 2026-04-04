@@ -86,3 +86,145 @@ CREATE TABLE Expense_Audit (
 );
 
 SHOW TABLES;
+
+INSERT INTO Categories (name) VALUES
+('Food & Dining'),
+('Education'),
+('Transportation'),
+('Entertainment'),
+('Utilities'),
+('Shopping'),
+('Health & Fitness'),
+('Books & Media'),
+('Subscriptions'),
+('Other');
+
+INSERT INTO Users (name, email, password) VALUES
+('Divyansh', 'divyansh@gmail.com', 'pass1'),
+('Aman', 'aman@gmail.com', 'pass2'),
+('Riya', 'riya@gmail.com', 'pass3'),
+('Karan', 'karan@gmail.com', 'pass4'),
+('Sneha', 'sneha@gmail.com', 'pass5');
+
+INSERT INTO Budgets (user_id, month, year, total_budget) VALUES
+(1, 3, 2026, 20000),
+(2, 3, 2026, 15000),
+(3, 3, 2026, 18000),
+(4, 3, 2026, 22000),
+(5, 3, 2026, 17000);
+
+INSERT INTO Expenses (user_id, category_id, amount, expense_date, notes) VALUES
+(1, 1, 200, '2026-03-01', 'Lunch'),
+(1, 3, 100, '2026-03-02', 'Auto fare'),
+(2, 2, 500, '2026-03-03', 'Books'),
+(3, 4, 300, '2026-03-04', 'Movie'),
+(4, 6, 1200, '2026-03-05', 'Shopping'),
+(5, 5, 800, '2026-03-06', 'Electricity bill');
+
+INSERT INTO Income (user_id, amount, source, income_date) VALUES
+(1, 25000, 'Pocket Money', '2026-03-01'),
+(2, 20000, 'Freelance', '2026-03-01'),
+(3, 18000, 'Part-time Job', '2026-03-01'),
+(4, 30000, 'Internship', '2026-03-01'),
+(5, 22000, 'Scholarship', '2026-03-01');
+
+INSERT INTO Category_Budget (user_id, category_id, month, year, limit_amount) VALUES
+(1, 1, 3, 2026, 5000),
+(1, 6, 3, 2026, 3000),
+(2, 2, 3, 2026, 4000),
+(3, 4, 3, 2026, 3500),
+(4, 5, 3, 2026, 4500),
+(5, 3, 3, 2026, 2500);
+
+INSERT INTO Alerts (user_id, message) VALUES
+(1, 'Food budget almost exceeded'),
+(2, 'Education budget reached'),
+(3, 'Entertainment limit near'),
+(4, 'Utilities cost high'),
+(5, 'Transportation budget low');
+
+INSERT INTO Expense_Audit (expense_id, action_type) VALUES
+(1, 'INSERT'),
+(2, 'INSERT'),
+(3, 'INSERT'),
+(4, 'INSERT'),
+(5, 'INSERT');
+
+DELIMITER $$
+
+CREATE TRIGGER budget_exceeded_trigger
+AFTER INSERT ON Expenses
+FOR EACH ROW
+BEGIN
+    DECLARE total_spent DECIMAL(10,2);
+    DECLARE budget_limit DECIMAL(10,2);
+
+    SELECT IFNULL(SUM(amount), 0)
+    INTO total_spent
+    FROM Expenses
+    WHERE user_id = NEW.user_id
+      AND MONTH(expense_date) = MONTH(NEW.expense_date)
+      AND YEAR(expense_date) = YEAR(NEW.expense_date);
+
+    SELECT total_budget
+    INTO budget_limit
+    FROM Budgets
+    WHERE user_id = NEW.user_id
+      AND month = MONTH(NEW.expense_date)
+      AND year = YEAR(NEW.expense_date);
+
+    IF total_spent > budget_limit THEN
+        INSERT INTO Alerts(user_id, message)
+        VALUES (NEW.user_id, 'Budget exceeded!');
+    END IF;
+
+END$$
+
+DELIMITER ;
+
+INSERT INTO Expenses (user_id, category_id, amount, expense_date, notes)
+VALUES (1, 1, 99999, '2026-03-29', 'Test big expense');
+
+SELECT * FROM Alerts;
+
+DELIMITER $$
+
+CREATE PROCEDURE CheckCategoryLimits(IN uid INT)
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE cat_id INT;
+    DECLARE total DECIMAL(10,2);
+
+    DECLARE cur CURSOR FOR 
+        SELECT category_id FROM Categories;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    OPEN cur;
+
+    read_loop: LOOP
+        FETCH cur INTO cat_id;
+
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        SELECT IFNULL(SUM(amount), 0)
+        INTO total
+        FROM Expenses
+        WHERE user_id = uid AND category_id = cat_id;
+
+        IF total > 5000 THEN
+            INSERT INTO Alerts(user_id, message)
+            VALUES (uid, CONCAT('High spending in category ', cat_id));
+        END IF;
+
+    END LOOP;
+
+    CLOSE cur;
+END$$
+
+DELIMITER ;
+
+CALL CheckCategoryLimits(1);
+SELECT * FROM Alerts;
