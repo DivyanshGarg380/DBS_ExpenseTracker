@@ -2,14 +2,36 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogOut, BarChart3, PlusCircle, ListTodo, PieChart, Settings } from 'lucide-react';
+import { LogOut, BarChart3, PlusCircle, ListTodo, PieChart, Settings, Bell } from 'lucide-react';
 import { useAuth } from '@/app/context/auth';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const [alertCount, setAlertCount] = useState(0);
+
+  useEffect(() => {
+    const fetchAlerts = async () => {
+      if (!user) return;
+
+      try {
+        const res = await fetch(`/api/alerts?user_id=${user.id}`);
+        const data = await res.json();
+
+        if (data.success) {
+          setAlertCount(data.data.length);
+        }
+      } catch (err) {
+        console.error("Failed to fetch alerts");
+      }
+    };
+
+    fetchAlerts();
+  }, [user]);
+
   const router = useRouter();
 
   const navItems = [
@@ -18,6 +40,7 @@ export function Sidebar() {
     { href: '/add-expense', label: 'Add Expense', icon: PlusCircle },
     { href: '/budgets', label: 'Budgets', icon: PieChart },
     { href: '/analytics', label: 'Analytics', icon: BarChart3 },
+    { href: '/alerts', label: 'Alerts', icon: Bell },
     { href: '/settings', label: 'Settings', icon: Settings },
   ];
 
@@ -65,18 +88,27 @@ export function Sidebar() {
           const Icon = item.icon;
           const isActive = pathname === item.href;
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
-                isActive
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                  : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 border border-transparent'
-              )}
-            >
+             <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
+                  isActive
+                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                    : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                )}
+              >
+
               <Icon className="w-4 h-4 shrink-0" />
-              {item.label}
+
+              <span className="flex-1">{item.label}</span>
+
+              {item.label === "Alerts" && alertCount > 0 && (
+                <span className="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full">
+                  {alertCount}
+                </span>
+              )}
+
             </Link>
           );
         })}

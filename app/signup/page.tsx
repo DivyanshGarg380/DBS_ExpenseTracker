@@ -36,20 +36,13 @@ export default function SignupPage() {
 
     setIsLoading(true);
 
-    const res = await fetch("/api/auth", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
-    });
+    try {
+      await signup(name, email, password); 
 
-    const data = await res.json();
-
-    if (data.success) {
-      await signup(name, email, password);
       toast.success("Account created successfully!");
-      router.push("/dashboard");
-    } else {
-      toast.error(data.error);
+      router.push("/dashboard"); // now safe
+    } catch (err) {
+      toast.error("Signup failed");
     }
 
     setIsLoading(false);
