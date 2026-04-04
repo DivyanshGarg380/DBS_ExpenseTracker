@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const { email, password } = await req.json();
 
     const [rows] = await db.query<any>(
-      "SELECT * FROM Users WHERE email = ? AND password = ?",
+      "SELECT * FROM users WHERE email = ? AND password = ?",
       [email, password]
     );
 
@@ -36,7 +36,7 @@ export async function PUT(req: Request) {
     const { name, email, password } = await req.json();
 
     const [existing] = await db.query<any>(
-      "SELECT * FROM Users WHERE email = ?",
+      "SELECT * FROM users WHERE email = ?",
       [email]
     );
 
@@ -48,7 +48,7 @@ export async function PUT(req: Request) {
     }
 
     const [result]: any = await db.query(
-      "INSERT INTO Users (name, email, password) VALUES (?, ?, ?)",
+      "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
       [name, email, password]
     );
 
