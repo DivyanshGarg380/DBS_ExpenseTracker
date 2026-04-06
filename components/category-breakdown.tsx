@@ -42,37 +42,57 @@ export function CategoryBreakdown({ userId }: { userId: number }) {
       </div>
 
       {data.length > 0 ? (
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={320}>
           <PieChart>
             <Pie
               data={data}
               cx="50%"
               cy="50%"
-              labelLine={false}
-              label={({ name, value }) => `${name}: ₹${value}`}
-              outerRadius={90}
-              innerRadius={40}
+              innerRadius={70}
+              outerRadius={100}
+              paddingAngle={3}
               dataKey="value"
-              strokeWidth={0}
+              stroke="none"
             >
               {data.map((_, index) => (
-                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                <Cell
+                  key={index}
+                  fill={COLORS[index % COLORS.length]}
+                  className="hover:opacity-80 transition"
+                />
               ))}
             </Pie>
+
+            {/* Center Total */}
+            <text
+              x="50%"
+              y="50%"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className="fill-white text-sm font-semibold"
+            >
+              ₹{data.reduce((acc, cur) => acc + cur.value, 0)}
+            </text>
+
             <Tooltip
-              formatter={(value) => `₹${Number(value)}`}
+              formatter={(value, name) => [`₹${value}`, name]}
               contentStyle={{
-                background: '#18181b',
-                border: '1px solid #3f3f46',
-                borderRadius: '8px',
-                color: '#f4f4f5',
+                background: '#111827',
+                border: '1px solid #27272a',
+                borderRadius: '10px',
+                color: '#e4e4e7',
                 fontSize: '13px',
               }}
             />
+
             <Legend
-              formatter={(value) => (
-                <span style={{ color: '#a1a1aa', fontSize: '12px' }}>{value}</span>
-              )}
+              verticalAlign="bottom"
+              iconType="circle"
+              wrapperStyle={{
+                fontSize: '12px',
+                color: '#a1a1aa',
+                paddingTop: '10px',
+              }}
             />
           </PieChart>
         </ResponsiveContainer>
