@@ -64,7 +64,7 @@ export default function BudgetsPage() {
   const handleCancel = () => { setEditingCategory(null); setEditAmount(''); };
 
   return (
-    <div className="flex-1 flex flex-col bg-zinc-950">
+    <div className="min-h-screen flex flex-col bg-zinc-950">
 
       {/* Header */}
       <div className="bg-zinc-950/80 border-b border-zinc-800 sticky top-0 z-10 backdrop-blur-md">
@@ -75,8 +75,8 @@ export default function BudgetsPage() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="px-8 py-8 space-y-4">
+      <div className="flex-1">
+        <div className="px-8 py-8 space-y-4 pb-16">
 
           {budgets.map(budget => {
             const percentSpent = budget.limit > 0 ? (budget.spent / budget.limit) * 100 : 0;
